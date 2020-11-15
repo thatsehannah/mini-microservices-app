@@ -1,0 +1,58 @@
+apiVersion: skaffold/v2alpha3
+kind: Config
+deploy:
+  kubectl: #telling skaffold that there is a collection of different config files intended for kubernetes inside this directory that skaffold needs to watch. Anytime that we make a change to those files, skaffold is going to automatically reapply that config file to our kubernetes cluster
+    manifests:
+      - ./infra/k8s/*
+build:
+  local:
+    push: false
+  artifacts: #whenever something changes inside this directory, skaffold will take those changes and update our pod
+    - image: thatsehannah/client
+      context: client
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual: #if we make a change thats not in this directory (e.g. package.json or a non javascript file), skaffold will rebuild our image and update the deployment tied to it
+          - src: 'src/**/*.js'
+            dest: .
+    - image: thatsehannah/comments
+      context: comments
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: '*.js'
+            dest: .
+    - image: thatsehannah/event-bus
+      context: event-bus
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: '*.js'
+            dest: .
+    - image: thatsehannah/moderation
+      context: moderation
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: '*.js'
+            dest: .
+    - image: thatsehannah/posts
+      context: posts
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: '*.js'
+            dest: .
+    - image: thatsehannah/query
+      context: query
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: '*.js'
+            dest: .

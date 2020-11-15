@@ -1,0 +1,31 @@
+apiVersion: apps/v1 #deployment lives in apps/v1
+kind: Deployment
+metadata:
+  name: client-depl
+spec:
+  replicas: 1 #the number of pods we want to create running a particular image
+  selector: #is saying: take a look at all the pods with a label of "app: posts"
+    matchLabels:
+      app: client
+  template: #specify the exact config of a pod that we want this deployment to create
+    metadata: #config that is going to be applied to the pod that the deployment is going to make
+      labels: #is saying: we want the pod to have a label of "app: posts" (works together with the selector section above)
+        app: client
+    spec:
+      containers:
+        - name: client
+          image: thatsehannah/client:latest
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: client-srv
+spec:
+  selector: #tell the service what pods its going to allow access to. In other words, direct any incoming traffic to the pod with the label specified in the *spec->template->metadata->labels* section above
+    app: client
+  type: ClusterIP #optional when creating an ClusterIP
+  ports:
+    - name: client
+      protocol: TCP
+      port: 3000
+      targetPort: 3000
